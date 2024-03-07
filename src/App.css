@@ -1,3 +1,7 @@
+body {
+  display: flex;
+  justify-content: center;
+}
 .chessboard {
   display: grid;
   grid-template-columns: repeat(8, 1fr);

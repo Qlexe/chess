@@ -24,22 +24,21 @@ function Cell(props) {
       )}
     </div>
   );
-      }
+}
 
-  const audioByStep = "./track.mp3";
+const audioByStep = "./track.mp3";
   const player = new Audio(audioByStep);
-  player.play();
+  window.addEventListener('click', () =>
+{  player.play();
   player.addEventListener("ended", () => {
     player.currentTime = 0;
     player.play();
-  });
-
+  });}
+  )
 
 function App() {
   const [cellsData, setData] = useState(initializedData);
   const [isChosen, setIsChosen] = useState(null);
-
-
 
   function onMovePiece(id, player, piece) {
     if (isChosen !== null) {
