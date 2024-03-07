@@ -1,70 +1,111 @@
-import React from "react";
+import React, { useState } from "react";
 // import logo from './logo.svg';
 import "./App.css";
+import initializedData from "./cellsData";
 
 function Cell(props) {
-  const { id, player, piece, background } = props;
+  // const [player, setPlayer] = useState(props.player);
+  // const [piece, setPiece] = useState(props.piece);
+
+  console.log(props.isChosen);
+
   return (
     <div
-      className="cell"
-      style={{ backgroundColor: background }}
-      player={player}
-      id={id}
+      className={`cell${props.isChosen ? " chosen" : ""}`}
+      style={{
+        backgroundColor: props.background,
+      }}
+      id={props.id}
+      player={props.player}
+      onClick={(e) => props.handleMove(props.id, props.player, props.piece)}
     >
-      {player && <img src={`./img/${player}/${piece}.png`} alt="cell"></img>}
+      {props.player && (
+        <img src={`./img/${props.player}/${props.piece}.png`} alt="cell"></img>
+      )}
     </div>
   );
-}
+      }
+
+  const audioByStep = "./track.mp3";
+  const player = new Audio(audioByStep);
+  player.play();
+  player.addEventListener("ended", () => {
+    player.currentTime = 0;
+    player.play();
+  });
+
 
 function App() {
-  const cells = [];
-  const piecesGeneral = [
-    "rook",
-    "knight",
-    "bishop",
-    "queen",
-    "king",
-    "bishop",
-    "knight",
-    "rook",
-  ];
+  const [cellsData, setData] = useState(initializedData);
+  const [isChosen, setIsChosen] = useState(null);
+
+
+
+  function onMovePiece(id, player, piece) {
+    if (isChosen !== null) {
+      const audioByStep = "./step.mpga";
+      const player = new Audio(audioByStep);
+      player.play();
+      const newData = cellsData.map((cell) => {
+        if (cell.id === id) {
+          // update new item
+          cell.player = isChosen.player;
+          cell.piece = isChosen.piece;
+        }
+        if (cell.id === isChosen.id) {
+          // delete old item
+          cell.player = null;
+          cell.piece = null;
+        }
+        return cell;
+      });
+      setIsChosen(null);
+      return setData(newData);
+    }
+    setIsChosen({ id: id, player: player, piece: piece });
+  }
+
+  console.log(cellsData);
   function toggleColor(color) {
     return color === "#2f385c" ? "#82acfa" : "#2f385c";
   }
   let colorCell = "#82acfa";
+  // const cells = cellsData.map((data) => {
+  //   colorCell = toggleColor(colorCell);
 
-  for (let i = 0; i < 64; i++) {
-    let player = null;
-    let piece = null;
-    if (i < 16) {
-      player = "white";
-      piece = piecesGeneral[i];
-      if (7 < i) piece = "pawn";
-    } else if (47 < i) {
-      player = "black";
-      piece = piecesGeneral[i - 56];
-      if (56 > i) piece = "pawn";
-    }
-    colorCell = toggleColor(colorCell);
+  //   if (data.id % 8 === 0) {
+  //     colorCell = toggleColor(colorCell);
+  //   }
+  //   return (
+  //     <Cell
+  //       key={data.id}
+  //       background={colorCell}
+  //       handleMove={onMovePiece}
+  //       {...data}
+  //     />
+  //   );
+  // });
 
-    if (
-       i % 8 === 0
-    ) {
-      colorCell = toggleColor(colorCell);
-    }
+  return (
+    <div className="chessboard">
+      {cellsData.map((data) => {
+        colorCell = toggleColor(colorCell);
 
-    cells.push(
-      <Cell
-        key={i}
-        id={i}
-        player={player}
-        piece={piece}
-        background={colorCell}
-      ></Cell>
-    );
-  }
-
-  return <div className="chessboard">{cells}</div>;
+        if (data.id % 8 === 0) {
+          colorCell = toggleColor(colorCell);
+        }
+        return (
+          <Cell
+            key={data.id}
+            background={colorCell}
+            isChosen={isChosen !== null && isChosen.id === data.id}
+            handleMove={onMovePiece}
+            {...data}
+          />
+        );
+      })}
+    </div>
+  );
 }
 
 export default App;
