@@ -40,7 +40,7 @@ function App({ data }) {
     setIsChosen(null);
   };
 
-  function checkForMoving(data, start, piece, end) {
+  function checkForMoving(data, start, piece, end, isWhite) {
     const moveVectors = {
       pawn: [
           [1, 0],
@@ -110,16 +110,31 @@ function App({ data }) {
     const possibleMoves = [];
     const [row, col] = position;
 
-    for (const [rowOffset, colOffset] of moveVectors[piece]) {
-      let newRow = row + rowOffset;
-      let newCol = col + colOffset;
+  for (const [rowOffset, colOffset] of moveVectors[piece]) {
+    let newRow = row + rowOffset;
+    let newCol = col + colOffset;
+  
 
+    if (piece === 'rook' || piece === 'queen' || piece === 'bishop') {
       while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
         possibleMoves.push([newRow, newCol]);
         newRow += rowOffset;
         newCol += colOffset;
       }
+    } else if (piece === 'pawn') {
+      // For pawn, add forward move and captures
+      if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        if (rowOffset === 0 || (isWhite && rowOffset === 1) || (!isWhite && rowOffset === -1)) {
+          possibleMoves.push([newRow, newCol]);
+        }
+      }
+    } else {
+      // For other pieces, add the move if it's within the board
+      if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        possibleMoves.push([newRow, newCol]);
+      }
     }
+  }
 
     const positionExists = possibleMoves.some(
       (move) => move[0] === newPosition[0] && move[1] === newPosition[1]
@@ -130,7 +145,7 @@ function App({ data }) {
 
   function onMovePiece(id, player, piece, xy) {
     if (player === null && isChosen === null) return;
-    if (isChosen !== null && !checkForMoving(cellsData, cellsData[isChosen.id].xy, isChosen.piece, xy)) return;
+    if (isChosen !== null && !checkForMoving(cellsData, cellsData[isChosen.id].xy, isChosen.piece, xy, isChosen.player === 'white')) return;
     if (isChosen !== null && isChosen.player !== player) {
       new Audio("./step.mpga").play();
 
