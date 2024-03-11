@@ -1,4 +1,5 @@
-const dataBase = [
+import { useState } from "react";
+const defaultData = [
   { id: 0, xy: "00", player: "white", piece: "rook" },
   { id: 1, xy: "01", player: "white", piece: "knight" },
   { id: 2, xy: "02", player: "white", piece: "bishop" },
@@ -71,23 +72,68 @@ const dataBase = [
   { id: 62, xy: "76", player: "black", piece: "knight" },
   { id: 63, xy: "77", player: "black", piece: "rook" },
 ];
-// let dataBase = [];
 
-// function output(data) {
-//     dataBase = data;
+export function getData(setFunc) {
+  console.log("get data");
+  const url = "https://kf887y-3000.csb.app/game/Chess";
+  fetch(url)
+    .then((response) => {
+      if (response.ok) {
+        console.log(response.status);
+        return response.json();
+      }
+      throw new Error("Something went wrong!");
+    })
+    .then((data) => {
+      setFunc(Object.values(data));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+export const putData = async (data) => {
+  console.log(Object.values(data));
+  try {
+    const response = await fetch(`https://kf887y-3000.csb.app/game/Chess`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(Object.values(data)),
+    });
+
+    if (response.ok) {
+      const updatedData = await response.json();
+      console.log("Data updated successfully:", updatedData);
+    } else {
+      console.error("Failed to update data:", response.status);
+    }
+  } catch (error) {
+    console.error("Error updating data:", error);
+  }
+};
+
+// export function putData(data, setFunc) {
+// const url = "https://s4djh9-3000.csb.app/chessGame";
+
+// const options = {
+//   method: 'PUT', // HTTP method (GET, POST, PUT, DELETE, etc.)
+//   headers: {
+//     'Content-Type': 'application/json', // Set the content type for JSON data
+//     // Additional headers if needed
+//   },
+//   body: JSON.stringify({data}), // Request body (if needed)
+// };
+
+// fetch(url, options)
+//   .then(response => {
+//     console.log(response);
+//     // Handle the response
+//   })
+//   .catch(error => {
+//     // Handle any errors
+//   });
 // }
 
-// setInterval(() => {
-//     const url = "https://9lwd59-3000.csb.app/chessGame";
-//     fetch(url)
-//     .then((response) => response.json())
-//     .then((data) => {
-//          console.log(data);
-//          output(data);
-//      })
-//     .catch((error) => {
-//          console.log(error);
-//      });
-// }, 1000);
-
-export default dataBase;
+export default defaultData;
